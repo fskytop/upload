@@ -41,7 +41,7 @@ export const uploadFile = files => dispatch => {
 
       try {
         await axios({
-          baseURL: 'http://localhost:3000',
+          baseURL: 'https://image.gitaction.com/',
           url: '/images',
           method: 'post',
           data: formPayload,
