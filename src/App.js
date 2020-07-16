@@ -1,28 +1,18 @@
 import React from 'react';
+import { connect } from 'react-redux'
 import { Router } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import styled from 'styled-components';
-import Loading from './Loading';
-import Filters from './Filters';
-import RestaurantList from './RestaurantList';
-import Category from './Category';
+import { setUploadFile } from './_redux/uploadFile/uploadFile.actions'
+import UploadProgress from './components/UploadProgress/UploadProgress'
 
 const MainColumn = styled.div.attrs({
   className: 'col-lg-9'
 })`
   max-width: 1150px;
   margin: 0 auto;
+  margin-top: 20px;
 `;
-
-const defaultFilters = {
-  nameFilter: '',
-  priceRangeFilter: {
-    $: false,
-    $$: false,
-    $$$: false,
-    $$$$: false,
-  },
-};
 
 const defaultHistory = createBrowserHistory();
 
@@ -30,85 +20,29 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      restaurants: [],
-      loading: true,
-      error: false,
-      ...defaultFilters,
     };
+    this.handleAttachFIle = this.handleAttachFIle.bind(this);
   }
 
-  componentDidMount() {
-    const host = process.env.REACT_APP_CONTENT_HOST;
-    fetch(`${host}/source/1.json`)
-      .then((result) => result.json())
-      .then((comics) => {
-        this.setState({
-          restaurants: comics.map((comic) => ({
-            ...comic,
-            imageSrc: `${host}sky/1/images/${comic.image.split("/").pop()}`,
-          })),
-          loading: false,
-        });
-      })
-      .catch(() => {
-        this.setState({ loading: false, error: true });
-      });
+  handleAttachFIle(e) {
+    this.props.setUploadFile(e.target.files)
+    e.target.value = '' // to clear the current file
   }
-
-  setNameFilter = (value) => this.setState({ nameFilter: value });
-
-  setPriceRangeFilter = (range) => (checked) => {
-    this.setState(({ priceRangeFilter }) => ({
-      priceRangeFilter: {
-        ...priceRangeFilter,
-        [range]: checked,
-      },
-    }));
-  };
-
-  resetAllFilters = () => this.setState(defaultFilters);
 
   render() {
-    const {
-      restaurants,
-      priceRangeFilter,
-      nameFilter,
-      loading,
-      error,
-    } = this.state;
-
-    if (loading) {
-      return <Loading />;
-    }
-
-    if (error) {
-      return (
-        <MainColumn>
-          Sorry, but the restaurant list is unavailable right now
-        </MainColumn>
-      );
-    }
-
     return (
       <Router history={this.props.history || defaultHistory}>
         <MainColumn>
-          <Category setNameFilter={this.setNameFilter}/>
-          <Filters
-            name={nameFilter}
-            priceRange={priceRangeFilter}
-            setNameFilter={this.setNameFilter}
-            setPriceRangeFilter={this.setPriceRangeFilter}
-            resetAll={this.resetAllFilters}
-          />
-          <RestaurantList
-            restaurants={restaurants}
-            priceRangeFilter={priceRangeFilter}
-            nameFilter={nameFilter}
-          />
+          <input type="file" multiple onChange={this.handleAttachFIle} />
+          <UploadProgress />
         </MainColumn>
       </Router>
     );
   }
 }
 
-export default App;
+const mapDispatchToProps = dispatch => ({
+  setUploadFile: files => dispatch(setUploadFile(files)),
+})
+
+export default connect(null, mapDispatchToProps)(App)

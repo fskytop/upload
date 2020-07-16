@@ -27,7 +27,6 @@ jobs:
     - run: yarn install --frozen-lockfile
     - run: yarn build --if-present
     - run: cp ./CNAME ./build/CNAME
-    - run: yarn test
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
