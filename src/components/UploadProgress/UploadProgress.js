@@ -13,7 +13,7 @@ const UploadProgress = props => {
   useEffect(() => {
     const fileToUpload = toArray(fileProgress).filter(file => file.progress === 0)
     uploadFile(fileToUpload)
-  }, [uploadedFileAmount])
+  }, [uploadedFileAmount, fileProgress, uploadFile])
 
   return uploadedFileAmount > 0 ? (
     <div className={Styles.wrapper}>
